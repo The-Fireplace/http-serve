@@ -17,7 +17,7 @@ RUN rm src/*.rs
 COPY src ./src
 
 # Build for release
-RUN rm ./target/release/deps/httpserve*
+RUN rm -f ./target/release/deps/httpserve*
 RUN cargo install --path .
 
 # 2. Package in a small production image
