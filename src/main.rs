@@ -1,7 +1,5 @@
 use std::env;
-use actix_web::{App, HttpServer, guard, web, HttpResponse, HttpRequest};
-use actix_web::http::StatusCode;
-use actix_web::web::Redirect;
+use actix_web::{App, HttpServer, guard, web};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -9,6 +7,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .configure(configure)
     });
+
     server
         .bind("0.0.0.0:8080")?
         .run()
