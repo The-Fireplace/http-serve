@@ -1,5 +1,6 @@
 use std::env;
-use actix_web::{App, HttpServer, guard, web};
+use actix_web::{App, HttpServer, guard, web, HttpRequest, Responder};
+use actix_web::web::Redirect;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -25,4 +26,19 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             );
         }
     }
+
+    if let Ok(allow_redirect) = env::var("REDIRECT_TO_HTTPS") {
+        if allow_redirect.ne("") {
+            cfg.default_service(web::route().to(https_redirect_handler));
+        }
+    }
+}
+
+async fn https_redirect_handler(request: HttpRequest) -> impl Responder {
+    let target_url = format!(
+        "https://{}{}",
+        request.connection_info().host(),
+        request.uri().path()
+    );
+    Redirect::to(target_url).permanent()
 }
