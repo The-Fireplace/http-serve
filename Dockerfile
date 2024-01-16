@@ -1,5 +1,5 @@
 # 1. Build rust
-FROM rust:1.72 as build
+FROM rust:1.75 as build
 
 # Create a new empty shell project
 RUN USER=root cargo new --bin httpserve
