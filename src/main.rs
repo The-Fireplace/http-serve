@@ -1,18 +1,12 @@
-use std::env;
-use actix_web::{App, HttpServer, guard, web, HttpRequest, Responder};
 use actix_web::web::Redirect;
+use actix_web::{guard, web, App, HttpRequest, HttpServer, Responder};
+use std::env;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let server = HttpServer::new(move || {
-        App::new()
-            .configure(configure)
-    });
+    let server = HttpServer::new(move || App::new().configure(configure));
 
-    server
-        .bind("0.0.0.0:8080")?
-        .run()
-        .await
+    server.bind("0.0.0.0:8080")?.run().await
 }
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
@@ -20,9 +14,10 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     let serve_from = env::var("SERVE_FROM");
     if let Ok(mount_path) = mount_path {
         if let Ok(serve_from) = serve_from {
-            cfg.service(actix_files::Files::new(&mount_path, &serve_from)
-                .guard(guard::Get())
-                .show_files_listing()
+            cfg.service(
+                actix_files::Files::new(&mount_path, &serve_from)
+                    .guard(guard::Get())
+                    .show_files_listing(),
             );
         }
     }
