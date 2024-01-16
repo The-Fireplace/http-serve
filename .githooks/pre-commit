@@ -1,0 +1,5 @@
+#!/bin/sh
+echo "Auto-formatting Rust files"
+cargo fmt
+echo "Running Rust linter"
+cargo clippy -- -D warnings
