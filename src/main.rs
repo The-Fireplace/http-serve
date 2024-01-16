@@ -15,7 +15,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     if let Ok(mount_path) = mount_path {
         if let Ok(serve_from) = serve_from {
             cfg.service(
-                actix_files::Files::new(&mount_path, &serve_from)
+                actix_files::Files::new(&mount_path, serve_from)
                     .guard(guard::Get())
                     .show_files_listing(),
             );
