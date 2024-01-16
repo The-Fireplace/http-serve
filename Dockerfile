@@ -21,7 +21,7 @@ RUN rm -f ./target/release/deps/httpserve*
 RUN cargo install --path .
 
 # 2. Package in a small production image
-FROM debian:bookworm-slim
+FROM debian:stable-slim
 WORKDIR /web
 
 # copy the build artifact from the build stage
