@@ -1,5 +1,5 @@
 # 1. Build rust
-FROM rust:1.72 as build
+FROM rust:1.75 as build
 
 # Create a new empty shell project
 RUN USER=root cargo new --bin httpserve
@@ -21,7 +21,7 @@ RUN rm -f ./target/release/deps/httpserve*
 RUN cargo install --path .
 
 # 2. Package in a small production image
-FROM debian:bookworm-slim
+FROM debian:stable-slim
 WORKDIR /web
 
 # copy the build artifact from the build stage
