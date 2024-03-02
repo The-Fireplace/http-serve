@@ -1,8 +1,23 @@
 # 1. Build rust
-FROM rust:1.75 as build
+FROM rust:1.76-bookworm as build
+
+RUN update-ca-certificates
+
+# Create appuser
+ENV USER=hsdocker
+ENV UID=10001
+
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid "${UID}" \
+    "${USER}"
 
 # Create a new empty shell project
-RUN USER=root cargo new --bin httpserve
+RUN cargo new --bin httpserve
 WORKDIR /httpserve
 
 # Copy manifests
@@ -21,13 +36,21 @@ RUN rm -f ./target/release/deps/httpserve*
 RUN cargo install --path .
 
 # 2. Package in a small production image
-FROM debian:stable-slim
+FROM gcr.io/distroless/cc-debian12
+
+# Import user from builder.
+COPY --from=build /etc/passwd /etc/passwd
+COPY --from=build /etc/group /etc/group
+
 WORKDIR /web
 
 # copy the build artifact from the build stage
 COPY --from=build /httpserve/target/release/httpserve ./httpserve
 
 EXPOSE 80
+
+# Use an unprivileged user.
+USER hsdocker:hsdocker
 
 # Run the binary
 CMD ["./httpserve"]
