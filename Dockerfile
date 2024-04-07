@@ -1,5 +1,5 @@
 # 1. Build rust
-FROM rust:1.76-bookworm as build
+FROM lukemathwalker/cargo-chef:0.1.66-rust-1-slim-bookworm AS chef
 
 RUN update-ca-certificates
 
@@ -16,36 +16,31 @@ RUN adduser \
     --uid "${UID}" \
     "${USER}"
 
-# Create a new empty shell project
-RUN cargo new --bin httpserve
 WORKDIR /httpserve
 
-# Copy manifests
-COPY Cargo.lock ./Cargo.lock
-COPY Cargo.toml ./Cargo.toml
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-# Build dependencies to cache them
-RUN cargo build --release
-RUN rm src/*.rs
-
-# Update build directory's source code
-COPY src ./src
-
-# Build for release
-RUN rm -f ./target/release/deps/httpserve*
-RUN cargo install --path .
+FROM chef AS builder
+COPY --from=planner /httpserve/recipe.json recipe.json
+# Build dependencies - this is the caching Docker layer!
+RUN cargo chef cook --release --recipe-path recipe.json
+# Build application
+COPY . .
+RUN cargo build --release --bin httpserve
 
 # 2. Package in a small production image
 FROM gcr.io/distroless/cc-debian12
 
 # Import user from builder.
-COPY --from=build /etc/passwd /etc/passwd
-COPY --from=build /etc/group /etc/group
+COPY --from=chef /etc/passwd /etc/passwd
+COPY --from=chef /etc/group /etc/group
 
 WORKDIR /web
 
 # copy the build artifact from the build stage
-COPY --from=build /httpserve/target/release/httpserve ./httpserve
+COPY --from=builder /httpserve/target/release/httpserve ./httpserve
 
 EXPOSE 80
 
