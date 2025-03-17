@@ -1,10 +1,10 @@
 [package]
 name = "httpserve"
-version = "0.1.6"
-edition = "2021"
+version = "0.1.7"
+edition = "2024"
 
 [dependencies]
-actix-web = { version = "4.6.0", default-features = false, features = ["macros"] }
+actix-web = { version = "4.10.2", default-features = false, features = ["macros"] }
 actix-files = "0.6.6"
 
 [profile.release]
