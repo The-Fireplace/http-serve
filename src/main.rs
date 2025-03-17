@@ -1,5 +1,5 @@
 use actix_web::web::Redirect;
-use actix_web::{guard, web, App, HttpRequest, HttpServer, Responder};
+use actix_web::{App, HttpRequest, HttpServer, Responder, guard, web};
 use std::env;
 
 #[actix_web::main]
@@ -23,7 +23,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     }
 
     if let Ok(allow_redirect) = env::var("REDIRECT_TO_HTTPS") {
-        if allow_redirect.ne("") {
+        if !allow_redirect.is_empty() {
             cfg.default_service(web::route().to(https_redirect_handler));
         }
     }
