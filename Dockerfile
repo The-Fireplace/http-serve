@@ -1,5 +1,5 @@
 # 1. Build rust
-FROM lukemathwalker/cargo-chef:0.1.67-rust-1-slim-bookworm AS chef
+FROM lukemathwalker/cargo-chef:0.1.71-rust-1-slim-bookworm AS chef
 
 RUN update-ca-certificates
 
