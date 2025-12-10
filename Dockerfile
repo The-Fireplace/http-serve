@@ -31,7 +31,7 @@ COPY . .
 RUN cargo build --release --bin httpserve
 
 # 2. Package in a small production image
-FROM gcr.io/distroless/cc-debian12
+FROM gcr.io/distroless/cc-debian13
 
 # Import user from builder.
 COPY --from=chef /etc/passwd /etc/passwd
