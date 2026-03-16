@@ -3,7 +3,21 @@
 Simple docker image to serve static files over HTTP and optionally redirect to HTTPS
 
 ## Usage
+
+### Setup
+
 TODO
+
+### Configuration
+
+This image is configured via the following environment variables:
+
+| Variable           | Description                                                                                                                        |
+|--------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| MOUNT_PATH         | The root URL for serving files from.                                                                                               |
+| SERVE_FROM         | The path to the folder on the disk which the files are located in.                                                                 |
+| REDIRECT_TO_HTTPS  | If set and non-empty the container will redirect to HTTPS, regardless of current protocol.                                         |
+| MAX_URI_CHARACTERS | The maximum length of the URI, in characters, to redirect to HTTPS. Anything over this limit will receive an HTTP 400 Bad Request. |
 
 ## Contributing
 To enable the pre-commit hook which can run the pipeline checks locally before making a PR, run ```git config core.hooksPath .githooks```
