@@ -2,6 +2,8 @@
 name = "httpserve"
 version = "0.1.8"
 edition = "2024"
+authors = ["The_Fireplace <git@the-fireplace.dev>"]
+license = "Apache-2.0 OR MIT"
 
 [dependencies]
 actix-web = { version = "4.13.0", default-features = false, features = ["macros"] }
