@@ -18,7 +18,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
         cfg.service(
             actix_files::Files::new(&mount_path, serve_from)
                 .guard(guard::Get())
-                .show_files_listing(),
+                .show_files_listing()
+                .prefer_utf8(true),
         );
     }
 
