@@ -1,6 +1,8 @@
 use actix_web::web::Redirect;
-use actix_web::{App, HttpRequest, HttpServer, Responder, guard, web};
+use actix_web::{guard, web, App, HttpRequest, HttpServer, Responder};
 use std::env;
+
+const DEFAULT_MAX_URI_CHARS: usize = 2048;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -26,15 +28,29 @@ fn configure(cfg: &mut web::ServiceConfig) {
     if let Ok(allow_redirect) = env::var("REDIRECT_TO_HTTPS")
         && !allow_redirect.is_empty()
     {
-        cfg.default_service(web::route().to(https_redirect_handler));
+        let max_uri_length = env::var("MAX_URI_CHARACTERS").map(
+            |max_uri_length| max_uri_length.parse::<usize>().unwrap_or(DEFAULT_MAX_URI_CHARS)
+        ).unwrap_or(DEFAULT_MAX_URI_CHARS);
+        cfg.default_service(web::route().to(move |request|
+            https_redirect_handler(request, max_uri_length)
+        ));
     }
 }
 
-async fn https_redirect_handler(request: HttpRequest) -> impl Responder {
+async fn https_redirect_handler(
+    request: HttpRequest,
+    max_uri_length: usize,
+) -> actix_web::Result<impl Responder> {
+    let connection_info = request.connection_info();
+    let host = connection_info.host();
+    let path = request.uri().path();
+    if 8 + host.chars().count() + path.chars().count() > max_uri_length {
+        return Err(actix_web::error::ErrorBadRequest("URI too long"));
+    }
     let target_url = format!(
         "https://{}{}",
-        request.connection_info().host(),
-        request.uri().path()
+        host,
+        path
     );
-    Redirect::to(target_url).permanent()
+    Ok(Redirect::to(target_url).permanent())
 }
