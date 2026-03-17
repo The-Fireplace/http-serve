@@ -25,8 +25,8 @@ fn configure(cfg: &mut web::ServiceConfig) {
         );
     }
 
-    if let Ok(allow_redirect) = env::var("REDIRECT_TO_HTTPS")
-        && !allow_redirect.is_empty()
+    if let Ok(https_redirect_host) = env::var("HTTPS_REDIRECT_HOST")
+        && !https_redirect_host.is_empty()
     {
         let max_uri_length = env::var("MAX_URI_CHARACTERS").map(
             |max_uri_length| max_uri_length.parse::<usize>().unwrap_or(DEFAULT_MAX_URI_CHARS)
@@ -41,8 +41,10 @@ async fn https_redirect_handler(
     request: HttpRequest,
     max_uri_length: usize,
 ) -> actix_web::Result<impl Responder> {
-    let connection_info = request.connection_info();
-    let host = connection_info.host();
+    let host = match env::var("HTTPS_REDIRECT_HOST") {
+        Ok(host) => host,
+        Err(_) => return Err(actix_web::error::ErrorInternalServerError("HTTPS_REDIRECT_HOST not set")),
+    };
     let path = request.uri().path();
     if 8 + host.chars().count() + path.chars().count() > max_uri_length {
         return Err(actix_web::error::ErrorBadRequest("URI too long"));
